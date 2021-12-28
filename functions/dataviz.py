@@ -6,13 +6,11 @@ import matplotlib.pyplot as plt
 import warnings
 import time
 import geopy
+import osmnx as ox
+from shapely.geometry import LineString
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
-
-
-
-
 
 
 def extract_data_from_OSM(osm, primary_filter, secondary_filter="all"):
@@ -38,7 +36,7 @@ def extract_data_from_OSM(osm, primary_filter, secondary_filter="all"):
 
 
 
-def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path="", custom_address =""):
+def plot_udine_map(udine_geodf, udine_osm, list_of_places, custom_address="", plot_uni_routes=False, list_of_uni="all", save=False, save_path=""):
     """
     TODO: write function description
     """
@@ -267,7 +265,7 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path="", c
         udine_for_test = udine_geodf.reset_index().to_crs(epsg=4326).geometry[0]
 
         if (location_to_test.within(udine_for_test)):
-            print(" - The location is within boundaries, adding info to the map")
+            print(" - The location is within boundaries, adding Location to the Map")
             # plot the point
             location.plot(
                 ax=base,
@@ -277,6 +275,68 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path="", c
                 markersize=2500,
                 linewidth=4
             )
+
+            # logic to show routes from custom address to universities, if requested
+            if plot_uni_routes:
+
+                print(" - Obtaining Closest Routes to required Universities")
+
+                # create osmnx network
+                nodes, edges = udine_osm.get_network(nodes=True)
+                G = udine_osm.to_graph(nodes, edges, graph_type="networkx")
+                nodes_for_route, edges_for_route = ox.graph_to_gdfs(G)
+
+                # find closest point to custom address
+                address_coords = (location["geometry"].y.values[0], location["geometry"].x.values[0])
+                closest_point_to_address = ox.get_nearest_node(G, address_coords)
+
+                # find closest points to required universities
+                list_of_uni_closest_points = []
+
+                if list_of_uni == "all":
+                    list_of_uni == [
+                        "Dipartimento di Scienze Giuridiche",
+                        "Università degli Studi di Udine - Facoltà di Medicina e Chirurgia - Corsi di Laurea Area Sanitaria",
+                        "Università degli Studi di Udine - Facoltà di Scienze della Formazione",
+                        "Università degli Studi di Udine - Dipartimento di Area medica",
+                        "Università degli Studi di Udine - Polo Scientifico dei Rizzi"
+                    ]
+
+                for idx,row in universities.iterrows():
+                    uni_name = row["name"]                       
+                    if uni_name in list_of_uni:
+                        geom = row["geometry"]
+                        lat = geom.y
+                        lon = geom.x
+                        coords = (lat, lon)
+                        list_of_uni_closest_points.append(ox.get_nearest_node(G, coords))
+
+                # find closest routes and plot them
+                for uni_point in list_of_uni_closest_points:
+                    
+                    # obtain closest route
+                    closest_route = ox.shortest_path(
+                        G, 
+                        closest_point_to_address, 
+                        uni_point, 
+                        weight='length'
+                        )
+
+                    # note: ox gives us the nodes id --> we want a LineString
+                    route_nodes = nodes_for_route.loc[closest_route]
+                    route_line = LineString(route_nodes['geometry'].tolist())
+                    route_geodf = gpd.GeoDataFrame(geometry=[route_line], crs=ox.settings.default_crs)
+
+                    # plot the route
+                    route_geodf.plot(
+                        ax=base,
+                        color="#B33951",
+                        edgecolor="black",
+                        markersize=1000,
+                        linewidth=10
+                    )
+
+
 
         else:
             print(" - ATTENTION: the provided address was not within the boundaries of Udine. \n   No information was added to the map. Please check that the address you wrote is correct.")
