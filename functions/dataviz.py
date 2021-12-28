@@ -5,6 +5,7 @@ import pyrosm
 import matplotlib.pyplot as plt
 import warnings
 import time
+import geopy
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
@@ -37,7 +38,7 @@ def extract_data_from_OSM(osm, primary_filter, secondary_filter="all"):
 
 
 
-def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path=""):
+def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path="", custom_address =""):
     """
     TODO: write function description
     """
@@ -205,7 +206,7 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path=""):
             color="#FFFFFF",
             edgecolor="black",
             marker='>',
-            markersize=250,
+            markersize=450,
             linewidth=2
         )
 
@@ -222,9 +223,63 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, save, save_path=""):
             color="#B8B8B8",
             edgecolor="black",
             marker='<',
-            markersize=250,
+            markersize=450,
             linewidth=2
         )
+
+    if "bus station" in list_of_places:
+        
+        print("> Adding Bus Stations")
+        
+        # obtain the data
+        bus_station = extract_data_from_OSM(udine_osm, "amenity", ["bus_station"])
+
+        # keep only selected rows
+        bus_station_names = [
+            'Autostazione di Udine',
+            'Terminal Studenti'
+        ]
+        bus_station = bus_station.loc[bus_station["name"].isin(bus_station_names)]
+        bus_station["geometry"] = bus_station.representative_point().geometry
+
+        # add bus station to the plot
+        bus_station.plot(
+            ax=base,
+            color="#F8F272",
+            edgecolor="black",
+            marker='v',
+            markersize=450,
+            linewidth=2
+        )
+
+    # add custom address location to the map
+    if custom_address != "":
+
+        print("> Adding info about provided Address to the Map")
+
+        # find coordinates
+        print(" - Geocoding Address")
+        location = gpd.tools.geocode(custom_address, provider="arcgis")
+
+        # check that the coordinates are within the map of Udine
+        print(" - Checking that the position found is within the boundaries of Udine")
+        location_to_test = location.geometry.values[0]
+        udine_for_test = udine_geodf.reset_index().to_crs(epsg=4326).geometry[0]
+
+        if (location_to_test.within(udine_for_test)):
+            print(" - The location is within boundaries, adding info to the map")
+            # plot the point
+            location.plot(
+                ax=base,
+                color="#30B4C5",
+                edgecolor="black",
+                marker='D',
+                markersize=2500,
+                linewidth=4
+            )
+
+        else:
+            print(" - ATTENTION: the provided address was not within the boundaries of Udine. \n   No information was added to the map. Please check that the address you wrote is correct.")
 
     # save the plot, if requested
     if save:

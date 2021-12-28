@@ -1,0 +1,35 @@
+*Key Locations*
+- university ✓
+
+*Food*
+- supermarket ✓
+- fast_food ✓      | considered eating places
+- restaurant ✓     |
+
+*Transport*
+- bicycle_rental ✓
+- bus_station ✓
+- car_rental ✓
+
+*Other*
+- hospital ✓
+
+--> Informazioni aggiunte
+
+
+Si potrebbero aggiungere anche:
+
+*Money*
+- atm
+- bank
+
+*Free Time*
+- arts_centre
+- bar
+- cafe
+- cinema
+- ice_cream
+- library
+- nightclub
+- pub
+- theatre
