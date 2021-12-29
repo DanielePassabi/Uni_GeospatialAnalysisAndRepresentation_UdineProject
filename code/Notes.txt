@@ -33,3 +33,16 @@ Si potrebbero aggiungere anche:
 - nightclub
 - pub
 - theatre
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+Per salvare i dati relativi alle distanze dai punti di interesse si potrebbe utilizzare un dizionario:
+
+sol = {
+  "university": {
+      "Dipartimento di Scienze Giuridiche":1987,                                # distanza in metri
+      "Università degli Studi di Udine - Dipartimento di Area medica":180       # distanza in metri
+  },
+  
+}
