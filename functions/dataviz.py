@@ -163,6 +163,9 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, custom_address="", sh
     udine_streets_driving_clipped.plot(ax=base, color="#1F1F1F", lw=0.8, alpha=0.8)
     udine_streets_walking_clipped.plot(ax=base, color="#3D3D3D", lw=0.6, alpha=0.8)
 
+    # dictionary that will contain all the information required
+    info_dict = {}
+
     # add additional elements, if requested
 
     if "university" in list_of_places:
@@ -338,9 +341,6 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, custom_address="", sh
     if custom_address != "":
 
         print("> Adding info about provided Address to the Map")
-
-        # dictionary that will contain all the information required
-        info_dict = {}
 
         # find coordinates
         print(" - Geocoding Address")
