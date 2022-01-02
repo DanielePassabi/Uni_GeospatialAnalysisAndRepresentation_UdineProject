@@ -1,27 +1,12 @@
-*Key Locations*
-- university ✓
 
-*Food*
-- supermarket ✓
-- fast_food ✓      | considered eating places
-- restaurant ✓     |
-
-*Transport*
-- bicycle_rental ✓
-- bus_station ✓
-- car_rental ✓
-
-*Other*
-- hospital ✓
-
---> Informazioni aggiunte
-
+PARTE 1 - Mappa di Udine
 
 Si potrebbero aggiungere anche:
 
 *Money*
-- atm
 - bank
+
+O fare una mappa per il free time, distinguendo:
 
 *Free Time*
 - arts_centre
@@ -34,15 +19,31 @@ Si potrebbero aggiungere anche:
 - pub
 - theatre
 
-
 -----------------------------------------------------------------------------------------------------------------------------------
 
-Per salvare i dati relativi alle distanze dai punti di interesse si potrebbe utilizzare un dizionario:
+IDEA: Per salvare i dati relativi alle distanze dai punti di interesse si potrebbe utilizzare un dizionario.
 
-sol = {
-  "university": {
-      "Dipartimento di Scienze Giuridiche":1987,                                # distanza in metri
-      "Università degli Studi di Udine - Dipartimento di Area medica":180       # distanza in metri
-  },
-  
-}
+FATTO
+
+---------------------------------------------------------------------------------------------------------
+
+Plot udine su municipalities
+
+# Let's plot what we have
+
+# create the base plot with the municipalities
+base = udine_mun_geodf.to_crs(epsg=4326).plot(
+    figsize=(10, 7),
+    color="#b5cea8",
+    edgecolor="k",
+    linewidth = 0.25
+    )
+
+# plot Udine hover its municipalities
+udine_geodf.to_crs(epsg=4326).plot(
+    facecolor='none', 
+    ax=base,
+    color="#EE6C4D",
+    edgecolor="k",
+    linewidth = 0.75
+    )
