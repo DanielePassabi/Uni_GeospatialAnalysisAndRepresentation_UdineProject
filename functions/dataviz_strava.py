@@ -6,6 +6,7 @@ from geopy.geocoders import Nominatim
 import movingpandas as mpd
 import contextily as ctx
 import folium
+from folium.plugins import MarkerCluster
 import leafmap
 
 
@@ -137,7 +138,7 @@ def extract_lat_lon_for_folium(geodf):
     return coords
 
 
-def create_folium_map(lat,lon,list_of_layers,list_of_routes):
+def create_folium_map(lat,lon,list_of_layers,list_of_routes,list_of_points):
     """
     Input:
         > lat               latitude of the location we want to display
@@ -147,15 +148,18 @@ def create_folium_map(lat,lon,list_of_layers,list_of_routes):
                                 list_of_routes[i][0] -> geodf of the route
                                 list_of_routes[i][1] -> title of the route (used in the popup)
                                 list_of_routes[i][2] -> type of the route, can be [run|bike]
+        > list_of_points
 
     Given latitude, longitude and a list of layers, it creates and returns a folium interactive map
     """
 
     # initialize folium map centered on coords (Udine)
     print("> Creating Base Map")
-    base_map = folium.Map(location=[lat,lon])
+    base_map = folium.Map(location=[lat,lon], zoom_start = 11)
     run_group = folium.FeatureGroup(name="Run")
     bike_group = folium.FeatureGroup(name="Bike")
+    #fitness_group = folium.FeatureGroup(name="Fitness/Sports Centre", show=False) --> too many, better to use a cluster
+    fitness_group = MarkerCluster(name="Fitness/Sports Centre", show=False)
 
     # add multiple layers
     print("> Adding multiple layers")
@@ -221,9 +225,45 @@ def create_folium_map(lat,lon,list_of_layers,list_of_routes):
 
         print("  - Added", route_type, "route:", title)
 
+    # add routes
+    print("> Adding points")
+    for points in list_of_points:
+
+        # extract info of points
+        geodf = points[0]
+        points_type = points[1]
+
+        if points_type == "fitness":
+
+            # add each point to the map
+            for idx,row in geodf.iterrows():
+
+                # obtain point info
+                if row["name"]:
+                    name = row["leisure"].replace("_", " ").title() + ": " + str(row["name"])
+                else:
+                    name = row["leisure"].replace("_", " ").title() + " (unknown name)"
+                lat = row["geometry"].y
+                lon = row["geometry"].x
+
+                # add it to the map
+                marker = folium.Marker(
+                    location=[lat,lon],
+                    #popup=message,
+                    tooltip=name,
+                    icon=folium.features.CustomIcon('../images/icon_fitness.png', icon_size=(25,25))
+                    )
+
+                marker.add_to(fitness_group)
+
+        else:
+            print("ERROR: incorrect type provided")
+            return 0
+
     # add groups to base_map
     run_group.add_to(base_map)
     bike_group.add_to(base_map)
+    fitness_group.add_to(base_map)
 
     # create layer control
     folium.LayerControl().add_to(base_map)
