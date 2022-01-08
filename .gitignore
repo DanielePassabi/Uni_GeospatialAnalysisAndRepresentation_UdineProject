@@ -2,3 +2,5 @@
 *.ini
 *.pyc
 functions/temp_nb_for_html.ipynb
+*.RData
+*.Rhistory
