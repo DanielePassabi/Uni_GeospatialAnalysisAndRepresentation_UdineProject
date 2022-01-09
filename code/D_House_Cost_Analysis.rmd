@@ -9,6 +9,14 @@ output:
 <style>
   body {text-align: justify;}
   .title {text-align: center;}
+  .definition {
+    background-color: #FFD885;
+    padding: 0.5rem 1.5rem 0;
+    border-radius: 4px;
+    border: 1px solid #FFB20F;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
 </style>
 
 <br><div class="title">
@@ -76,6 +84,8 @@ Let's visualize the content of `udine_municipalities`.
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
+par(mar=c(0,0,0,0))
+
 # create base plot
 plot(
   udine_municipalities,
@@ -122,7 +132,11 @@ udine_municipalities_with_house_cost@data %>%
 
 We need to assign each municipality a *unique spatial reference coordinate* to represent them. 
 
-We can calculate the *centroids* of the municipalities in this way.
+We can calculate the *centroids* of the municipalities. Remember that:
+
+<div class="definition">
+The centroid or geometric center of a plane figure is the arithmetic mean position of all the points in the figure. [Wikipedia](https://en.wikipedia.org/wiki/Centroid)
+</div>
 
 ```{r}
 
@@ -140,6 +154,8 @@ One classic example is the one of Liguria and its centroid:
 Let us visualise our centroids to ensure that there are no such problems. 
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
+
+par(mar=c(0,0,0,0))
 
 plot(
   udine_municipalities_with_house_cost, 
@@ -177,21 +193,25 @@ Of the different possible definitions of neighbourhood we have seen:
 
 Let us explore them.
 
-#### **k-nearest neighbours**
+#### **A. k-nearest neighbours**
 
-The k-nearest neighbours entails that two spatial units are considered neighbours if their distance is equal, or less than equal, to the smallest possible distance that can be found between all the units. 
+<div class="definition">
+The k-nearest neighbours entails that two spatial units are considered neighbours if their distance is equal, or less than equal, to the smallest possible distance that can be found between all the units.
 
 Following this definition of neighbourhood, each spatial unit will have the same number k of neighbours.
+</div>
 
-In the function we use `longlat = True`, so that we do not use the Euclidean distance, but a distance that takes into account the fact that the Earth is not flat.
+In R we can use the function `knn2nb`.
+
+Note: we specify the parameter `longlat = True`, so that we do not use the Euclidean distance, but a distance that takes into account the fact that the Earth is not flat.
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
 # we try different values of k
-knn1_UD_mun_k1 = knn2nb(knearneigh(udine_mun_coords, k = 1, longlat = T))
-knn1_UD_mun_k2 = knn2nb(knearneigh(udine_mun_coords, k = 2, longlat = T))
-knn1_UD_mun_k3 = knn2nb(knearneigh(udine_mun_coords, k = 3, longlat = T))
-knn1_UD_mun_k4 = knn2nb(knearneigh(udine_mun_coords, k = 4, longlat = T))
+knn_UD_mun_k1 = knn2nb(knearneigh(udine_mun_coords, k = 1, longlat = T))
+knn_UD_mun_k2 = knn2nb(knearneigh(udine_mun_coords, k = 2, longlat = T))
+knn_UD_mun_k3 = knn2nb(knearneigh(udine_mun_coords, k = 3, longlat = T))
+knn_UD_mun_k4 = knn2nb(knearneigh(udine_mun_coords, k = 4, longlat = T))
 
 ```
 
@@ -200,7 +220,10 @@ Let's visualize the results.
 ```{r}
 
 # Create function for knn plot
-plot_knn_res = function(shapefile, knn_obj, tie_color) {
+plot_knn_res = function(shapefile, knn_obj, tie_color, k) {
+  
+  # set margins
+  par(mar=c(0,0,2,0))
 
   # plot base map using shapefile
   plot(
@@ -209,8 +232,11 @@ plot_knn_res = function(shapefile, knn_obj, tie_color) {
     bg = "#CEE1F2", 
     lwd = 1
   )
+  
+  # add custom title
+  title(main = paste0("k = ",k)) 
 
-  # plot hover base map knn results
+  # plot over base map knn results
   plot(
     knn_obj, 
     udine_mun_coords,
@@ -224,10 +250,10 @@ plot_knn_res = function(shapefile, knn_obj, tie_color) {
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
-#plot_knn_res(udine_municipalities_with_house_cost, knn1_UD_mun_k1, "#EF798A")
-#plot_knn_res(udine_municipalities_with_house_cost, knn1_UD_mun_k2, "#593F62")
-#plot_knn_res(udine_municipalities_with_house_cost, knn1_UD_mun_k3, "#574AE2")
-#plot_knn_res(udine_municipalities_with_house_cost, knn1_UD_mun_k4, "#21897E")
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k1, "#EF798A", 1)
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k2, "#593F62", 2)
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k3, "#574AE2", 3)
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k4, "#21897E", 4)
 
 ```
 
@@ -235,18 +261,20 @@ plot_knn_res = function(shapefile, knn_obj, tie_color) {
 
 ![](../images/udine_mun_knn_1_to_4.png)
 
-#### **Critical cut-off neighbourhood**
+#### **B. Critical cut-off neighbourhood**
 
-According to this criterion, two spatial units are considered to be neighbours if their distance is equal to, or less than equal to, a certain fixed distance, the critical cut-off. 
+<div class="definition">
+According to the critical cut-off criterion, two spatial units are considered to be neighbours if their distance is equal to, or less than equal to, a certain fixed distance, the critical cut-off.
+</div>
 
 It should be remembered, however, that this distance should allow all units to have at least one neighbour.
 
-Let us find the minimum distance required.
+Thus, let us find the minimum distance required.
 
 ```{r}
 
-knn1_UD_mun_k1 = knn2nb(knearneigh(udine_mun_coords, k = 1, longlat = T))
-max_mun_distance = max(unlist(nbdists(knn1_UD_mun_k1, udine_mun_coords, longlat = T))) 
+knn_UD_mun_k1 = knn2nb(knearneigh(udine_mun_coords, k = 1, longlat = T))
+max_mun_distance = max(unlist(nbdists(knn_UD_mun_k1, udine_mun_coords, longlat = T))) 
 
 message("The maximum distance between two municipalities is ", round(max_mun_distance,2), " km")
 
@@ -265,6 +293,7 @@ dnb24 = dnearneigh(udine_mun_coords, 0, 24, longlat = T); message("\ndnb24"); dn
 
 ```
 
+
 ```{r}
 
 # function to plot results of dnearneigh()
@@ -272,6 +301,9 @@ dnb24 = dnearneigh(udine_mun_coords, 0, 24, longlat = T); message("\ndnb24"); dn
 # Create function for knn plot
 plot_dnb_res = function(shapefile, dnb_obj, tie_color, title) {
 
+  # set margins
+  par(mar=c(0,0,2,0))
+  
   # plot base map using shapefile
   plot(
     shapefile, 
@@ -283,7 +315,7 @@ plot_dnb_res = function(shapefile, dnb_obj, tie_color, title) {
   # add custom title
   title(main = title) 
 
-  # plot hover base map knn results
+  # plot over base map knn results
   plot(
     dnb_obj, 
     udine_mun_coords,
@@ -317,7 +349,7 @@ This happens because the usual distance of the centroids tends to be much smalle
 ```{r fig.height=5, fig.width=10, fig.align='center'}
 
 # save the data in a df for ggplot
-distance_vector = unlist(nbdists(knn1_UD_mun_k1, udine_mun_coords, longlat = T))
+distance_vector = unlist(nbdists(knn_UD_mun_k1, udine_mun_coords, longlat = T))
 distance_df = data.frame(distance_vector)
 
 # show histogram of distances
@@ -346,39 +378,274 @@ As we can see from the picture, most of the distances are not too far from the a
 
 However, the cutoff value we have to use is about 12 (red line), which is more than twice the average value of the distances. As a consequence, many neighbours are formed.
 
+#### **C. Contiguity-based neighbourhood**
 
+<div class="definition">
+The neighbourhood criterion based on contiguity states that two spatial units are considered neighbours if they share a common border.
+</div>
 
+```{r}
 
+# Note on "queen" parameter from the documentation
+#   if TRUE, a single shared boundary point meets the contiguity condition, 
+#   if FALSE, more than one shared point is required
 
+contnb_q = poly2nb(udine_municipalities_with_house_cost, queen = T)
+contnb_q
 
+```
+Now we plot the results.
 
+```{r fig.height=14, fig.width=12, fig.align='center'}
 
+par(mar=c(0,0,2,0))
 
+# plot base map using shapefile
+plot(
+  udine_municipalities_with_house_cost, 
+  col = "#CDE2B6",
+  bg = "#CEE1F2", 
+  lwd = 1
+)
+  
+# add custom title
+title(main = "Contiguity-based neighbourhood") 
 
+# plot results over base map 
+plot(
+  contnb_q, 
+  udine_mun_coords,
+  add = T,
+  col = "#EF798A",
+  lwd = 2
+)
 
+```
 
+### **Defining Spatial Weights**
 
+We have defined 9 neighbourhood relationships:
 
+- 4 using *k-nearest neighbours*
+- 4 using *critical cut-off neighbourhood*
+- 1 using *contiguity-based neighbourhood*
 
+Now we can create the spatial weights matrix, one for each neighbours list previously created.
 
+```{r}
 
+# k-nearest neighbours
+knn_UD_mun_k1.listw = nb2listw(knn_UD_mun_k1, style = "W")
+knn_UD_mun_k2.listw = nb2listw(knn_UD_mun_k2, style = "W")
+knn_UD_mun_k3.listw = nb2listw(knn_UD_mun_k3, style = "W")
+knn_UD_mun_k4.listw = nb2listw(knn_UD_mun_k4, style = "W")
 
+# critical cut-off neighbourhood
+dnb12.listw = nb2listw(dnb12, style = "W")
+dnb16.listw = nb2listw(dnb16, style = "W")
+dnb20.listw = nb2listw(dnb20, style = "W")
+dnb24.listw = nb2listw(dnb24, style = "W")
 
+# contiguity-based neighbourhood
+contnb_q.listw = nb2listw(contnb_q, style = "W")
 
+```
 
+### **Moran's I test of spatial autocorrelation**
 
+<div class="definition">
+The *Moran's I test* is the most popular measure of (global) spatial autocorrelation of a variable.
 
+It is given by:
+$$
+I=\frac{n}{\sum_{i=1}^{n} \sum_{j=1}^{n} w_{i j}} \frac{\sum_{i=1}^{n} \sum_{j=1}^{n} w_{i j}\left(x_{i}-\bar{x}\right)\left(x_{j}-\bar{x}\right)}{\sum_{i=1}^{n}\left(x_{i}-\bar{x}\right)^{2}}
+$$
 
+Its values range from:
 
+- $-1 \rightarrow$ *negative* association
+- $+1 \rightarrow$ *positive* association
 
+If the value is close to $0$, that indicates absence of spatial autocorrelation.
 
+</div>
 
+Before we perform the *Moran's I test*, we visually inspect our two variables "Sale" and "Rent".
 
+We first report the choropleths obtained in Python.
 
+![](../images/choropleths_sale_rent.png)
 
+And now we visualize the quantile distribution of the variables.
 
+```{r}
 
+plot_quantile_distr = function(shapefile, col_name){
+  
+  # set margins
+  par(mar=c(0,0,2,0))
+  
+  # obtain brks and colours based on provided column
+  colours = grey((length(brks):2)/length(brks))
+  
+  if (col_name == "Sale") {
+    brks = round(quantile(shapefile$Sale), digits = 3)
+    colours = colours[findInterval(shapefile$Sale, brks, all.inside = TRUE)]
+  } else if (col_name == "Rent") {
+    brks = round(quantile(shapefile$Rent), digits = 3)
+    colours = colours[findInterval(shapefile$Rent, brks, all.inside = TRUE)]
+  } else {
+    print("Error: unrecognised 'col_name' value provided. It must be 'Sale' or 'Rent'.")
+  }
+  
+  # create plot
+  plot(
+    shapefile, 
+    col = colours
+  )
+  
+  # custom title
+  title(main = paste("House", col_name, "Prices in the Province of Udine"))
+}
 
+```
 
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#plot_quantile_distr(udine_municipalities_with_house_cost, "Sale")
+#plot_quantile_distr(udine_municipalities_with_house_cost, "Rent")
+
+```
+
+![](../images/quantiles_sale_rent.png)
+
+We now apply to the test `Sale` and `Rent` with the different spatial weights matrix that we have.
+
+```{r}
+
+# we save all the weights (and the neighbourhood used) in a list
+weights = list(
+  list(knn_UD_mun_k1.listw, "k-nearest neighbours (k=1)"),
+  list(knn_UD_mun_k2.listw, "k-nearest neighbours (k=2)"),
+  list(knn_UD_mun_k3.listw, "k-nearest neighbours (k=3)"),
+  list(knn_UD_mun_k4.listw, "k-nearest neighbours (k=4)"),
+  list(dnb12.listw, "critical cut-off neighbourhood (d=12)"),
+  list(dnb16.listw, "critical cut-off neighbourhood (d=16)"),
+  list(dnb20.listw, "critical cut-off neighbourhood (d=20)"),
+  list(dnb24.listw, "critical cut-off neighbourhood (d=24)"),
+  list(contnb_q.listw, "contiguity-based neighbourhood")
+)
+    
+```
+
+### **Sale**
+
+We test the `Sale` variable under the assumption of Normality and Randomization.
+
+```{r}
+
+# create arrays that will contain results
+Neighbourhood = c()
+Moran_I_stat_std_dev = c()
+p_value = c()
+Moran_I_statistic = c()
+Expectation = c()
+Variance = c()
+Assumption = c()
+
+# iterate over each weight and store results
+for (w in weights) {
+  
+  for (rand in c(T,F)) {
+   
+    # execute test
+    Neighbourhood = append(Neighbourhood, w[[2]])
+    res = moran.test(udine_municipalities_with_house_cost$Sale, w[[1]], randomisation = rand)
+  
+    # save results
+    Moran_I_stat_std_dev = append(Moran_I_stat_std_dev, round(as.numeric(res[[1]]),3))
+    p_value = append(p_value, as.numeric(res[[2]]))
+    Moran_I_statistic = append(Moran_I_statistic, round(as.numeric(res[[3]][1]),3))
+    Expectation = append(Expectation, round(as.numeric(res[[3]][2]),3))
+    Variance = append(Variance, round(as.numeric(res[[3]][3]),3))
+    
+    if (rand) {
+      Assumption = append(Assumption, "Randomization")
+    } else {
+      Assumption = append(Assumption, "Normality")
+    }
+  }
+
+}
+
+# create df with results and show them
+res_df = data.frame(Neighbourhood, Moran_I_stat_std_dev, p_value, Moran_I_statistic, Expectation, Variance, Assumption)
+res_df
+
+```
+
+Inspecting the results we can see that, in this case, the assumption of normality or randomization *does not* particularly affect the results.
+
+- If we consider the results obtained through the k-nearest neighbourhood, we can see that the Moran I Statistic is always higher than $0.22$, regardless of the value of $k$.
+- On the other hand, using the critical cut-off neighbourhood, the value starts at $0.225$ when we use the minimum value for $d$, but drops drastically close to $0$ when $d$ is higher.
+- Finally, using the contiguity-based neighbourhood, the Moran I Statistic value is $0.256$.
+
+From the results obtained, together with the extremely low p-values we can conclude that there is a *positive spatial autocorrelation*, although not too strong, for the `Sale` variable.
+
+The low value of the Moran I Statistic in the case of critical cut-off neighbourhood could be due to the too large number of neighbours that are formed with too high $d$ values. So we do not consider it significant.
+
+### **Rent**
+
+We test the `Rent` variable under the assumption of Normality and Randomization.
+
+```{r}
+
+# create arrays that will contain results
+Neighbourhood = c()
+Moran_I_stat_std_dev = c()
+p_value = c()
+Moran_I_statistic = c()
+Expectation = c()
+Variance = c()
+Assumption = c()
+
+# iterate over each weight and store results
+for (w in weights) {
+  
+  for (rand in c(T,F)) {
+   
+    # execute test
+    Neighbourhood = append(Neighbourhood, w[[2]])
+    res = moran.test(udine_municipalities_with_house_cost$Rent, w[[1]], randomisation = rand)
+  
+    # save results
+    Moran_I_stat_std_dev = append(Moran_I_stat_std_dev, round(as.numeric(res[[1]]),3))
+    p_value = append(p_value, as.numeric(res[[2]]))
+    Moran_I_statistic = append(Moran_I_statistic, round(as.numeric(res[[3]][1]),3))
+    Expectation = append(Expectation, round(as.numeric(res[[3]][2]),3))
+    Variance = append(Variance, round(as.numeric(res[[3]][3]),3))
+    
+    if (rand) {
+      Assumption = append(Assumption, "Randomization")
+    } else {
+      Assumption = append(Assumption, "Normality")
+    }
+  }
+
+}
+
+# create df with results and show them
+res_df = data.frame(Neighbourhood, Moran_I_stat_std_dev, p_value, Moran_I_statistic, Expectation, Variance, Assumption)
+res_df
+
+```
+
+Also in the case of the variable `Rent` the assumption of normality or randomization *does not* particularly affect the results.
+
+- With k-nearest neighbours the value of I goes from $0.795$, when $k = 1$ to $0.710$, when $k$ is higher ($4$).
+- Using the critical cut-off neighbourhood the value of I falls to 0.51 if we consider the minimum value for $d$. As $d$ increases, the value of I decreases, until it reaches $0.352$ when $d = 24$.
+- Finally, with the contiguity-based neighbourhood, the value of I is $0.71$.
+
+The p-values are extremely low, which allows us to say that there is a strong *positive spatial autocorrelation* when we consider the `Rent` variable.
 
 <br><br><br><br><br>
