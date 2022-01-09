@@ -45,6 +45,7 @@ library(dplyr)    # data manipulation
 library(rgdal)    # import and store a shapefile in R
 library(spdep)    # analysis of spatial dependence
 library(ggplot2)  # create visualizations
+library(stringr)  # string manipulation
 
 print("> Libraries Imported")
 
@@ -118,6 +119,10 @@ house_sale_rent = house_sale_rent %>%
 # we join the data
 udine_municipalities_with_house_cost = merge(udine_municipalities, house_sale_rent, by = "COMUNE")
 
+# set all upper names for COMUNE (it will be useful later)
+udine_municipalities_with_house_cost@data = udine_municipalities_with_house_cost@data %>%
+  mutate(COMUNE = toupper(COMUNE))
+
 # show results
 udine_municipalities_with_house_cost@data %>%
   select(COMUNE, Sale, Rent)
@@ -135,7 +140,7 @@ We need to assign each municipality a *unique spatial reference coordinate* to r
 We can calculate the *centroids* of the municipalities. Remember that:
 
 <div class="definition">
-The centroid or geometric center of a plane figure is the arithmetic mean position of all the points in the figure. [Wikipedia](https://en.wikipedia.org/wiki/Centroid)
+The centroid of a plane figure is the arithmetic mean position of all the points in the figure.
 </div>
 
 ```{r}
@@ -647,5 +652,254 @@ Also in the case of the variable `Rent` the assumption of normality or randomiza
 - Finally, with the contiguity-based neighbourhood, the value of I is $0.71$.
 
 The p-values are extremely low, which allows us to say that there is a strong *positive spatial autocorrelation* when we consider the `Rent` variable.
+
+## **Descriptive Spatial Statistics (Local Analysis)**
+
+As we have seen, Moran's I statistic is a *global measure*.
+
+It does not, therefore, allow us to identify local patterns of spatial autocorrelation. 
+
+In our case it is worthwhile to assess the presence of local spatial clusters and to check the specific contribution of each municipality to the global pattern of spatial dependence. 
+
+We can study the local spatial autocorrelation using:
+- the Moran scatterplot
+- the Local Moran's I
+
+### **Moran Scatterplot for Sale**
+
+TODO: scrivere definizione e spiegazione.
+
+```{r fig.align='center', fig.height=10, fig.width=10}
+
+#idx=1
+#for (w in weights) {
+#  
+#  # create scatterplot
+#  mplot = moran.plot(
+#    udine_municipalities_with_house_cost$Sale, 
+#    listw = w[[1]], 
+#    labels = toupper(udine_municipalities_with_house_cost$COMUNE),
+#    main = paste("MORAN SCATTERPLOT with", w[[2]]), 
+#    return_df = F,
+#    xlab = "UdineMunicipalities$Sale",
+#    ylab = "Spatially Lagged UdineMunicipalities$Sale",
+#    col = "black",
+#    bg = "#BFD9BF",
+#    pch = 21
+#  )
+#  grid()
+#  
+#  # add to the mplot to weights (3rd pos) for future plots
+#  weights[[idx]][[3]] = mplot
+#  idx=idx+1
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/moran_scatterplots_sale.png)
+
+TODO: scrivere considerazione sui risultati.
+
+### **Moran Scatterplot for Rent**
+
+```{r fig.align='center', fig.height=10, fig.width=10}
+
+#idx=1
+#for (w in weights) {
+#  
+#  mplot = moran.plot(
+#    udine_municipalities_with_house_cost$Rent, 
+#    listw = w[[1]], 
+#    labels = toupper(udine_municipalities_with_house_cost$COMUNE),
+#    main = paste("MORAN SCATTERPLOT with", w[[2]]), 
+#    return_df = F,
+#    xlab = "UdineMunicipalities$Rent",
+#    ylab = "Spatially Lagged UdineMunicipalities$Rent",
+#    col = "black",
+#    bg = "#F5A97A",
+#    pch = 21
+#  )
+#  grid()
+#  
+#  # add to the mplot to weights (4th pos) for future plots
+#  weights[[idx]][[4]] = mplot
+#  idx=idx+1
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/moran_scatterplots_rent.png)
+
+TODO: scrivere considerazione sui risultati.
+
+### **Visualizing the Scatterplots Results**
+
+TODO: scrivere spiegazione.
+
+
+```{r}
+
+create_map_from_scatterplot_res_sale = function(shapefile, weight, title, mplot) {
+  
+  # identify the influential municipalities
+  hotspot = as.character(row.names(as.data.frame(summary(mplot))))
+  
+  # we obtain the spatially lagged values of the variable of interest
+  shapefile$wx = lag.listw(weight, shapefile$Sale)
+    
+  # create placeholder for quadrant info
+  shapefile$quadrant = rep("None", length(shapefile$Sale))
+    
+  # gather useful info from data
+  mean_sale = mean(shapefile$Sale)
+  mean_wx = mean(shapefile$wx)
+    
+  # iterate
+  for (i in 1:length(hotspot)) {
+    if (shapefile$Sale[which(shapefile$COMUNE == hotspot[i])] > mean_sale & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] > mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "HH" 
+    if (shapefile$Sale[which(shapefile$COMUNE == hotspot[i])] > mean_sale & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] < mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "HL" 
+    if (shapefile$Sale[which(shapefile$COMUNE == hotspot[i])] < mean_sale & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] < mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "LL" 
+    if (shapefile$Sale[which(shapefile$COMUNE == hotspot[i])] < mean_sale & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] > mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "LH" 
+  }
+  
+  # Note: which(shapefile$COMUNE == hotspot[i]) --> used to obtain the index given the name of the municipality
+  
+  # create colors column
+  shapefile$colours[shapefile$quadrant == "None"] = "#E4E3DD"
+  shapefile$colours[shapefile$quadrant == "LL"] = "#ECDD7B"
+  shapefile$colours[shapefile$quadrant == "HL"] = "#CE8147"
+  shapefile$colours[shapefile$quadrant == "LH"] = "#CE3B67"
+  shapefile$colours[shapefile$quadrant == "HH"] = "#982649" 
+  
+  # set margins
+  par(mar=c(0,0,2,0))
+  
+  # plot the map of the regions with influence
+  plot(
+    shapefile, 
+    col = shapefile$colours,
+    bg = "#CEE1F2"
+    )
+  
+  # create new col only for the influential municipalities
+  shapefile@data = shapefile@data %>%
+    mutate(custom_name = ifelse(quadrant %in% c("HH","LL","LH","HL"), COMUNE, ""))
+  
+  # add name of municipality as text 
+  text(
+    coordinates(shapefile), 
+    labels = shapefile$custom_name, 
+    cex = 0.6,
+    col = "black"
+    )
+  
+  # add custom title
+  title(main = title)
+}
+
+```
+
+```{r}
+
+create_map_from_scatterplot_res_rent = function(shapefile, weight, title, mplot) {
+  
+  # identify the influential municipalities
+  hotspot = as.character(row.names(as.data.frame(summary(mplot))))
+  
+  # we obtain the spatially lagged values of the variable of interest
+  shapefile$wx = lag.listw(weight, shapefile$Rent)
+    
+  # create placeholder for quadrant info
+  shapefile$quadrant = rep("None", length(shapefile$Rent))
+    
+  # gather useful info from data
+  mean_rent = mean(shapefile$Rent)
+  mean_wx = mean(shapefile$wx)
+    
+  # iterate
+  for (i in 1:length(hotspot)) {
+    
+    if (shapefile$Rent[which(shapefile$COMUNE == hotspot[i])] > mean_rent & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] > mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "HH" 
+    if (shapefile$Rent[which(shapefile$COMUNE == hotspot[i])] > mean_rent & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] < mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "HL" 
+    if (shapefile$Rent[which(shapefile$COMUNE == hotspot[i])] < mean_rent & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] < mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "LL" 
+    if (shapefile$Rent[which(shapefile$COMUNE == hotspot[i])] < mean_rent & shapefile$wx[which(shapefile$COMUNE == hotspot[i])] > mean_wx)
+      shapefile$quadrant[which(shapefile$COMUNE == hotspot[i])] = "LH" 
+  }
+  
+  # Note: which(shapefile$COMUNE == hotspot[i]) --> used to obtain the index given the name of the municipality
+  
+  # create colors column
+  shapefile$colours[shapefile$quadrant == "None"] = "#E4E3DD"
+  shapefile$colours[shapefile$quadrant == "LL"] = "#ECDD7B"
+  shapefile$colours[shapefile$quadrant == "HL"] = "#CE8147"
+  shapefile$colours[shapefile$quadrant == "LH"] = "#CE3B67"
+  shapefile$colours[shapefile$quadrant == "HH"] = "#982649" 
+  
+  # set margins
+  par(mar=c(0,0,2,0))
+  
+  # plot the map of the regions with influence
+  plot(
+    shapefile, 
+    col = shapefile$colours,
+    bg = "#CEE1F2"
+    )
+  
+  # create new col only for the influential municipalities
+  shapefile@data = shapefile@data %>%
+    mutate(custom_name = ifelse(quadrant %in% c("HH","LL","LH","HL"), COMUNE, ""))
+  
+  # add name of municipality as text 
+  text(
+    coordinates(shapefile), 
+    labels = shapefile$custom_name, 
+    cex = 0.6,
+    col = "black"
+    )
+  
+  # add custom title
+  title(main = title)
+}
+
+```
+
+### **Sale**
+
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#for (w in weights) {
+#  create_map_from_scatterplot_res_sale(udine_municipalities_with_house_cost, w[[1]], w[[2]], w[[3]])
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/moran_scatterplots_sale_map.png)
+
+### **Rent**
+
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#for (w in weights) {
+#  create_map_from_scatterplot_res_rent(udine_municipalities_with_house_cost, w[[1]], w[[2]], w[[4]])
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/moran_scatterplots_rent_map.png)
 
 <br><br><br><br><br>
