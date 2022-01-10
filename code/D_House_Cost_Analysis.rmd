@@ -29,9 +29,11 @@ output:
 
 ## **Aim**
 
-In this notebook we will perform a *geospatial analysis* of the average house price in Udine, both for buying and renting.
+In this notebook we will perform **descriptive spatial statistical analyses**, both from a *global* and *local* perspective.
 
-Our aim is to understand whether the average price of a municipality also depends on neighbouring municipalities.
+We will focus on municipalities in the Province of Udine, using data updated to December 2021 concerning the average price of houses and rents in each municipality.
+
+Source of the data: [Immobiliare.it](https://www.immobiliare.it/mercato-immobiliare/friuli-venezia-giulia/udine-provincia/)
 
 <br>
 
@@ -55,14 +57,16 @@ print("> Libraries Imported")
 
 ## **Import Data**
 
+### **Udine Municipalities**
+
 We first import the shapefile of all the municipalities in Italy.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 
 # import shapefile
 italy_municipalities = readOGR("../data/Com01012021_g","Com01012021_g_WGS84")
 
-# convert epsg:4326
+# convert to epsg:4326
 italy_municipalities = spTransform(italy_municipalities, CRS("+init=epsg:4326"))
 
 # show sample
@@ -74,9 +78,7 @@ We filter and keep only the Udine municipalities. They must be 134.
 
 ```{r}
 
-# Note: 30 is the Province Code for Udine
-
-udine_municipalities = italy_municipalities[italy_municipalities$COD_PROV == 30,]
+udine_municipalities = italy_municipalities[italy_municipalities$COD_PROV == 30,] # 30 is the Province Code for Udine
 udine_municipalities@data
 
 ```
@@ -85,14 +87,15 @@ Let's visualize the content of `udine_municipalities`.
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
+# set plot margins
 par(mar=c(0,0,0,0))
 
 # create base plot
 plot(
   udine_municipalities,
-  col = "#CDE2B6",
-  bg = "#CEE1F2", 
-  lwd = 2
+  col = "#CDE2B6",       # customize municipality color
+  bg = "#CEE1F2",        # customize background color
+  lwd = 2                # customize line width (municipality borders)
   )
 
 # add name of municipality as text 
@@ -104,6 +107,8 @@ text(
   )
 
 ```
+
+### **House Sale and Rent Data**
 
 We now import data on house sales and rental costs and join them with our `udine_municipality` data.
 
@@ -206,13 +211,13 @@ The k-nearest neighbours entails that two spatial units are considered neighbour
 Following this definition of neighbourhood, each spatial unit will have the same number k of neighbours.
 </div>
 
-In R we can use the function `knn2nb`.
+In R we can use the function `knn2nb()`.
 
 Note: we specify the parameter `longlat = True`, so that we do not use the Euclidean distance, but a distance that takes into account the fact that the Earth is not flat.
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
-# we try different values of k
+# we use different values of k
 knn_UD_mun_k1 = knn2nb(knearneigh(udine_mun_coords, k = 1, longlat = T))
 knn_UD_mun_k2 = knn2nb(knearneigh(udine_mun_coords, k = 2, longlat = T))
 knn_UD_mun_k3 = knn2nb(knearneigh(udine_mun_coords, k = 3, longlat = T))
@@ -239,7 +244,7 @@ plot_knn_res = function(shapefile, knn_obj, tie_color, k) {
   )
   
   # add custom title
-  title(main = paste0("k = ",k)) 
+  title(main = paste0("k-nearest neighbours (k=",k,")")) 
 
   # plot over base map knn results
   plot(
@@ -255,14 +260,16 @@ plot_knn_res = function(shapefile, knn_obj, tie_color, k) {
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
-#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k1, "#EF798A", 1)
-#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k2, "#593F62", 2)
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k1, "#593F62", 1)
+#plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k2, "#EF798A", 2)
 #plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k3, "#574AE2", 3)
 #plot_knn_res(udine_municipalities_with_house_cost, knn_UD_mun_k4, "#21897E", 4)
 
 ```
 
-*Note: to get a more comparable output, I manually merged the images.*
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+*It is recommended to open the visualisation in a new window to better appreciate it.*
 
 ![](../images/udine_mun_knn_1_to_4.png)
 
@@ -285,25 +292,22 @@ message("The maximum distance between two municipalities is ", round(max_mun_dis
 
 ```
 
-Thus, the cut-off distance has to be greater than 11.72 (km).
+The cut-off distance has to be greater than 11.72 (km).
 
 ```{r}
 
 # We try different neighbourhood definitions for different values of the cut-off distance
-
 dnb12 = dnearneigh(udine_mun_coords, 0, 12, longlat = T); message("dnb12"); dnb12
-dnb16 = dnearneigh(udine_mun_coords, 0, 16, longlat = T); message("\ndnb16"); dnb16 
-dnb20 = dnearneigh(udine_mun_coords, 0, 20, longlat = T); message("\ndnb20"); dnb20 
-dnb24 = dnearneigh(udine_mun_coords, 0, 24, longlat = T); message("\ndnb24"); dnb24 
+dnb16 = dnearneigh(udine_mun_coords, 0, 16, longlat = T); message("dnb16"); dnb16 
+dnb20 = dnearneigh(udine_mun_coords, 0, 20, longlat = T); message("dnb20"); dnb20 
+dnb24 = dnearneigh(udine_mun_coords, 0, 24, longlat = T); message("dnb24"); dnb24 
 
 ```
 
 
 ```{r}
 
-# function to plot results of dnearneigh()
-
-# Create function for knn plot
+# Create function to plot results of dnearneigh()
 plot_dnb_res = function(shapefile, dnb_obj, tie_color, title) {
 
   # set margins
@@ -334,14 +338,16 @@ plot_dnb_res = function(shapefile, dnb_obj, tie_color, title) {
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
-#plot_dnb_res(udine_municipalities_with_house_cost, dnb12, "#EF798A", "d nearest neighbours, d = 12")
-#plot_dnb_res(udine_municipalities_with_house_cost, dnb16, "#593F62", "d nearest neighbours, d = 16")
-#plot_dnb_res(udine_municipalities_with_house_cost, dnb20, "#574AE2", "d nearest neighbours, d = 20")
-#plot_dnb_res(udine_municipalities_with_house_cost, dnb24, "#21897E", "d nearest neighbours, d = 24")
+#plot_dnb_res(udine_municipalities_with_house_cost, dnb12, "#593F62", "d nearest neighbours (d = 12)")
+#plot_dnb_res(udine_municipalities_with_house_cost, dnb16, "#EF798A", "d nearest neighbours (d = 16)")
+#plot_dnb_res(udine_municipalities_with_house_cost, dnb20, "#574AE2", "d nearest neighbours (d = 20)")
+#plot_dnb_res(udine_municipalities_with_house_cost, dnb24, "#21897E", "d nearest neighbours (d = 24)")
 
 ```
 
-*Note: as done previously, I am merging the images for more immediate comparison.*
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+*It is recommended to open the visualisation in a new window to better appreciate it.*
 
 ![](../images/udine_mun_critical_cutoff.png)
 
@@ -349,11 +355,11 @@ It is normal that as the critical cut-off increases, the number of connections i
 
 In this case, however, even with the lowest value (12) of cut-off there seems to be a disproportion of connections between the north-eastern municipalities and the others.
 
-This happens because the usual distance of the centroids tends to be much smaller than the maximum found. To make this concept clearer, we show a simple histogram of the distances. 
+This happens because the usual distance between the centroids tends to be much smaller than the maximum found. To make this concept clearer, we show a simple histogram of the distances. 
 
 ```{r fig.height=5, fig.width=10, fig.align='center'}
 
-# save the data in a df for ggplot
+# save the distances data in a df for ggplot
 distance_vector = unlist(nbdists(knn_UD_mun_k1, udine_mun_coords, longlat = T))
 distance_df = data.frame(distance_vector)
 
@@ -368,7 +374,7 @@ ggplot(distance_df, aes(x = distance_vector)) +
     ) +
   # add labels
   labs(
-    title = "Distances between Spatial Units",
+    title = "\nDistances between Spatial Units",
     subtitle = "Obtained using KNN with K=1",
     x = "\ndistance (km)",
     y = "count\n"
@@ -381,7 +387,7 @@ ggplot(distance_df, aes(x = distance_vector)) +
 
 As we can see from the picture, most of the distances are not too far from the average, which is 4.57 (represented by the blue dotted line).
 
-However, the cutoff value we have to use is about 12 (red line), which is more than twice the average value of the distances. As a consequence, many neighbours are formed.
+However, the cutoff value we have used is about 12 (red line), which is more than twice the average value of the distances. As a consequence, lots of municipalities have many neighbours.
 
 #### **C. Contiguity-based neighbourhood**
 
@@ -475,9 +481,9 @@ If the value is close to $0$, that indicates absence of spatial autocorrelation.
 
 </div>
 
-Before we perform the *Moran's I test*, we visually inspect our two variables "Sale" and "Rent".
+Before we perform the *Moran's I test*, we visually inspect our two variables `Sale` and `Rent`.
 
-We first report the choropleths obtained in Python.
+We first report the choropleths maps obtained in Python.
 
 ![](../images/choropleths_sale_rent.png)
 
@@ -543,7 +549,7 @@ weights = list(
     
 ```
 
-### **Sale**
+### **Moran's I test for Sale**
 
 We test the `Sale` variable under the assumption of Normality and Randomization.
 
@@ -561,6 +567,7 @@ Assumption = c()
 # iterate over each weight and store results
 for (w in weights) {
   
+  # execute twice, one for Normality and one for Randomization
   for (rand in c(T,F)) {
    
     # execute test
@@ -573,7 +580,6 @@ for (w in weights) {
     Moran_I_statistic = append(Moran_I_statistic, round(as.numeric(res[[3]][1]),3))
     Expectation = append(Expectation, round(as.numeric(res[[3]][2]),3))
     Variance = append(Variance, round(as.numeric(res[[3]][3]),3))
-    
     if (rand) {
       Assumption = append(Assumption, "Randomization")
     } else {
@@ -591,17 +597,17 @@ res_df
 
 Inspecting the results we can see that, in this case, the assumption of normality or randomization *does not* particularly affect the results.
 
-- If we consider the results obtained through the k-nearest neighbourhood, we can see that the Moran I Statistic is always higher than $0.22$, regardless of the value of $k$.
+- If we consider the results obtained through the k-nearest neighbourhood, we can see that the *Moran I Statistic* is always higher than $0.22$, regardless of the value of $k$.
 - On the other hand, using the critical cut-off neighbourhood, the value starts at $0.225$ when we use the minimum value for $d$, but drops drastically close to $0$ when $d$ is higher.
-- Finally, using the contiguity-based neighbourhood, the Moran I Statistic value is $0.256$.
+- Finally, using the contiguity-based neighbourhood, the *Moran I Statistic* value is $0.256$.
 
-From the results obtained, together with the extremely low p-values we can conclude that there is a *positive spatial autocorrelation*, although not too strong, for the `Sale` variable.
+From the results obtained, together with the extremely low p-values we can conclude that there is a (global) *positive spatial autocorrelation*, although not too strong, for the `Sale` variable.
 
-The low value of the Moran I Statistic in the case of critical cut-off neighbourhood could be due to the too large number of neighbours that are formed with too high $d$ values. So we do not consider it significant.
+The low value of the *Moran I Statistic* in the case of critical cut-off neighbourhood could be due to the large number of neighbours that are formed with too high $d$ values.
 
-### **Rent**
+### **Moran's I test for Rent**
 
-We test the `Rent` variable under the assumption of Normality and Randomization.
+As we did for `Sale`, we now test the `Rent` variable under the assumption of Normality and Randomization.
 
 ```{r}
 
@@ -617,6 +623,7 @@ Assumption = c()
 # iterate over each weight and store results
 for (w in weights) {
   
+  # execute twice, one for Normality and one for Randomization
   for (rand in c(T,F)) {
    
     # execute test
@@ -629,7 +636,6 @@ for (w in weights) {
     Moran_I_statistic = append(Moran_I_statistic, round(as.numeric(res[[3]][1]),3))
     Expectation = append(Expectation, round(as.numeric(res[[3]][2]),3))
     Variance = append(Variance, round(as.numeric(res[[3]][3]),3))
-    
     if (rand) {
       Assumption = append(Assumption, "Randomization")
     } else {
@@ -647,27 +653,51 @@ res_df
 
 Also in the case of the variable `Rent` the assumption of normality or randomization *does not* particularly affect the results.
 
-- With k-nearest neighbours the value of I goes from $0.795$, when $k = 1$ to $0.710$, when $k$ is higher ($4$).
-- Using the critical cut-off neighbourhood the value of I falls to 0.51 if we consider the minimum value for $d$. As $d$ increases, the value of I decreases, until it reaches $0.352$ when $d = 24$.
-- Finally, with the contiguity-based neighbourhood, the value of I is $0.71$.
+- With k-nearest neighbours the value of *I* goes from $0.795$, when $k = 1$, to $0.710$ with higher values of $k$ is higher ($4$).
+- Using the critical cut-off neighbourhood the value of *I* falls to $0.51$ if we consider the minimum value for $d$. As $d$ increases, the value of *I* decreases, until it reaches $0.352$ when $d = 24$.
+- Finally, with the contiguity-based neighbourhood, the value of *I* is $0.71$.
 
-The p-values are extremely low, which allows us to say that there is a strong *positive spatial autocorrelation* when we consider the `Rent` variable.
+The p-values are extremely low, which allows us to say that there is a strong (global) *positive spatial autocorrelation* when we consider the `Rent` variable.
 
 ## **Descriptive Spatial Statistics (Local Analysis)**
 
-As we have seen, Moran's I statistic is a *global measure*.
+As we have seen, *Moran's I statistic* is a **global** measure.
 
 It does not, therefore, allow us to identify local patterns of spatial autocorrelation. 
 
 In our case it is worthwhile to assess the presence of local spatial clusters and to check the specific contribution of each municipality to the global pattern of spatial dependence. 
 
 We can study the local spatial autocorrelation using:
-- the Moran scatterplot
-- the Local Moran's I
+
+- the *Moran scatterplot*
+- the *Local Moran's I*
+
+### **Moran Scatterplot**
+
+<div class="definition">
+Moran's scatterplot plots the variable of interest $x$ on the horizontal axis and its corresponding spatially lagged values ($wx$) on the vertical axis. 
+
+The four quadrants of the scatterplot represent the four possible types of spatial association between each region (in our case common) and other neighbouring regions:
+
+- *Low-Low*: value of $x$ and $wx$ below the average
+- *High-Low*
+- *Low-High*
+- *High-High*: value of $x$ and $wx$ above the average
+
+Regions in the *High-High* and *Low-Low* quadrants have a **positive** spatial autocorrelation and are surrounded by regions with similar values.
+
+Regions in the *High-Low* and *Low-High* quadrants, on the contrary, identify local patterns of **negative** spatial autocorrelation. In these quadrants we find regions with:
+
+- a high value of $x$ and a low value of $wx$
+- a low value of $x$ and a high value of $wx$
+
+These regions are surrounded by other regions with dissimilar values.
+
+</div>
 
 ### **Moran Scatterplot for Sale**
 
-TODO: scrivere definizione e spiegazione.
+We generate a scatterplot for each of the 9 neighbourhood relationships used.
 
 ```{r fig.align='center', fig.height=10, fig.width=10}
 
@@ -698,48 +728,11 @@ TODO: scrivere definizione e spiegazione.
 
 *Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
 
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
 ![](../images/moran_scatterplots_sale.png)
 
-TODO: scrivere considerazione sui risultati.
-
-### **Moran Scatterplot for Rent**
-
-```{r fig.align='center', fig.height=10, fig.width=10}
-
-#idx=1
-#for (w in weights) {
-#  
-#  mplot = moran.plot(
-#    udine_municipalities_with_house_cost$Rent, 
-#    listw = w[[1]], 
-#    labels = toupper(udine_municipalities_with_house_cost$COMUNE),
-#    main = paste("MORAN SCATTERPLOT with", w[[2]]), 
-#    return_df = F,
-#    xlab = "UdineMunicipalities$Rent",
-#    ylab = "Spatially Lagged UdineMunicipalities$Rent",
-#    col = "black",
-#    bg = "#F5A97A",
-#    pch = 21
-#  )
-#  grid()
-#  
-#  # add to the mplot to weights (4th pos) for future plots
-#  weights[[idx]][[4]] = mplot
-#  idx=idx+1
-#}
-
-```
-
-*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
-
-![](../images/moran_scatterplots_rent.png)
-
-TODO: scrivere considerazione sui risultati.
-
-### **Visualizing the Scatterplots Results**
-
-TODO: scrivere spiegazione.
-
+Before commenting on the scatterplots, we display their results on the map.
 
 ```{r}
 
@@ -783,29 +776,95 @@ create_map_from_scatterplot_res_sale = function(shapefile, weight, title, mplot)
   par(mar=c(0,0,2,0))
   
   # plot the map of the regions with influence
-  plot(
-    shapefile, 
-    col = shapefile$colours,
-    bg = "#CEE1F2"
-    )
+  plot(shapefile, col = shapefile$colours,bg = "#CEE1F2")
   
   # create new col only for the influential municipalities
   shapefile@data = shapefile@data %>%
     mutate(custom_name = ifelse(quadrant %in% c("HH","LL","LH","HL"), COMUNE, ""))
   
   # add name of municipality as text 
-  text(
-    coordinates(shapefile), 
-    labels = shapefile$custom_name, 
-    cex = 0.6,
-    col = "black"
-    )
+  text(coordinates(shapefile), labels = shapefile$custom_name, cex = 0.6,col = "black")
   
   # add custom title
   title(main = title)
 }
 
 ```
+
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#for (w in weights) {
+#  create_map_from_scatterplot_res_sale(udine_municipalities_with_house_cost, w[[1]], w[[2]], w[[3]])
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
+![](../images/moran_scatterplots_sale_map.png)
+
+Let us briefly explore the results for the most important municipalities.
+
+![](../images/prato_carnico_ravascletto.png)
+
+#### **Udine**
+
+Udine is only considered influential, with a **positive** spatial correlation, when we use the critical cut-off neighbourourood with a high value of $d$. Probably its influence is more pronounced when many neighbours are taken into account.
+
+#### **Lignano Sabbiadoro**
+
+All the scatterplots agree in showing the **positive** spatial correlation of *Lignano Sabbiadoro*. Being the municipality with the highest average cost of houses (3067 euro per square meter) it is plausible that it influences the price of the neighbouring municipalities. The closest are *Latisana* and *Marano Lagunare*.
+
+#### **Prato Carnico** and **Ravascletto**
+
+These two municipalities are very interesting, both are often considered important by the models, and have a **negative** spatial correlation.
+
+*Prato Carnico* has a low average house price, but is surrounded by municipalities with a high average price. On the contrary *Ravascletto* has a high average house price, but is surrounded by municipalities with a low average house price.
+
+#### **Sappada**
+
+*Sappada* is also interesting. In the case of scatterplots with knn, for example, it is considered of **negative** influence only when $k=1$ and $k=2$. This is because its nearest municipality is *Prato Carnico* which, as we have seen, has around municipalities with different prices from its own.
+
+If, however, we increase the value of $k$ and consider more neighbouring municipalities, then the influence of Sappada becomes **positive**.
+
+
+### **Moran Scatterplot for Rent**
+
+```{r fig.align='center', fig.height=10, fig.width=10}
+
+#idx=1
+#for (w in weights) {
+#  
+#  mplot = moran.plot(
+#    udine_municipalities_with_house_cost$Rent, 
+#    listw = w[[1]], 
+#    labels = toupper(udine_municipalities_with_house_cost$COMUNE),
+#    main = paste("MORAN SCATTERPLOT with", w[[2]]), 
+#    return_df = F,
+#    xlab = "UdineMunicipalities$Rent",
+#    ylab = "Spatially Lagged UdineMunicipalities$Rent",
+#    col = "black",
+#    bg = "#F5A97A",
+#    pch = 21
+#  )
+#  grid()
+#  
+#  # add to the mplot to weights (4th pos) for future plots
+#  weights[[idx]][[4]] = mplot
+#  idx=idx+1
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
+![](../images/moran_scatterplots_rent.png)
+
+We visualize the results of the scatterplots on the map.
 
 ```{r}
 
@@ -874,22 +933,6 @@ create_map_from_scatterplot_res_rent = function(shapefile, weight, title, mplot)
 
 ```
 
-### **Sale**
-
-```{r fig.height=14, fig.width=12, fig.align='center'}
-
-#for (w in weights) {
-#  create_map_from_scatterplot_res_sale(udine_municipalities_with_house_cost, w[[1]], w[[2]], w[[3]])
-#}
-
-```
-
-*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
-
-![](../images/moran_scatterplots_sale_map.png)
-
-### **Rent**
-
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
 #for (w in weights) {
@@ -900,6 +943,102 @@ create_map_from_scatterplot_res_rent = function(shapefile, weight, title, mplot)
 
 *Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
 
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
 ![](../images/moran_scatterplots_rent_map.png)
+
+Again, we explore the results for the most important municipalities.
+
+Considering the `Rent` variable, the important municipalities increase considerably in number. Instead of discussing them individually, we will try to divide them into categories.
+
+#### **Municipalities with positive influence**
+
+On the one hand there is *Udine* and its neighbouring municipalities. These municipalities, recognised by most models, have a high average rental price and are: *Remanzacco*, *Pasian di Prato*, *Martignacco*, *Moruzzo*, *Pagnacco*, *Colloredo di Monte Albano*.
+
+On the other hand, there are *Osoppo* and *Majano*, municipalities with a low average rental price, surrounded by other municipalities with a low price.
+
+#### **Municipalities with negative influence**
+
+Very frequent are the municipalities of *Codroipo*, *Camino al Tagliamento*, *Reana del Rojale* and *Fagagna*.
+
+### **Local Moran's I**
+
+<div class="definition">
+*Local Moran's I* is a local spatial autocorrelation statistic that identifies local clusters or local outliers to understand their contribution to the global clustering statistic.
+
+Source: [Aurin](https://aurin.org.au/resources/workbench-user-guides/portal-user-guides/analysing-your-data/spatial-autocorrelation-tools/local-morans-i/#:~:text=Local%20Moran's%20I%20is%20a,of%20Spatial%20Association%20(LISAs).)
+
+For each unit $i$ the local Moran's $I_{i}$ is defined as follows:
+$$
+I_{i}=\frac{\left(x_{i}-\bar{x}\right) \sum_{j=1}^{n} w_{i j}\left(x_{j}-\bar{x}\right)}{\frac{\sum_{j=1}^{n}\left(x_{i}-\bar{x}\right)^{2}}{n}}
+$$
+
+The $n$ local Moran's $I_{i}$ values are such that they sum to the global Moran's $I$.
+
+</div>
+
+```{r}
+
+compute_and_plot_localmoran = function(shapefile, col_name, weight, title) {
+  
+  # compute Local Moran's I, based on col
+  if (col_name == "Sale") {
+    lmI = localmoran(shapefile$Sale, weight)
+  } else if (col_name == "Rent") {
+    lmI = localmoran(shapefile$Rent, weight)
+  }
+  
+  # create plot based on Local Moran's I values
+  par(mar=c(0,0,2,0))
+  brks = sort(as.numeric(lmI[,1]))
+  colours = grey((0:length(lmI[,1]))/length(lmI[,1]))
+  plot(shapefile, col = colours[findInterval(lmI[,1], brks, all.inside = TRUE)], bg = "#CEE1F2")
+  title(main = paste("Local Moran's I values:", title))
+  
+  # show I value
+  #text(coordinates(shapefile), labels = round(lmI[,1],2), cex = 0.6, col = "red")
+  
+  # create significance plot
+  pval = as.numeric(lmI[,5])
+  shapefile$colpval[pval > 0.05] = "#e5e5e5"
+  shapefile$colpval[pval <= 0.05 & pval > 0.01] = "#d9ed92" 
+  shapefile$colpval[pval <= 0.01 & pval > 0.001] = "#b5e48c"
+  shapefile$colpval[pval <= 0.001 & pval > 0.0001] = "#76c893"
+  shapefile$colpval[pval <= 0.0001] = "#52b69a"
+  plot(shapefile, col = shapefile$colpval, bg = "#CEE1F2")
+  title(main = paste("Local Moran's I significance map:", title))
+  
+}
+
+```
+
+
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#for (w in weights) {
+#  compute_and_plot_localmoran(udine_municipalities_with_house_cost, "Sale", w[[1]], w[[2]])
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/local_moran_sale.png)
+
+TODO: comment results.
+
+```{r fig.height=14, fig.width=12, fig.align='center'}
+
+#for (w in weights) {
+#  compute_and_plot_localmoran(udine_municipalities_with_house_cost, "Rent", w[[1]], w[[2]])
+#}
+
+```
+
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+![](../images/local_moran_rent.png)
+
+TODO: comment results.
 
 <br><br><br><br><br>
