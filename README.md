@@ -4,13 +4,9 @@
 
 Geospatial Analysis and Representation for Data Science (2021-2022)
 
-<br>
-
 ## **Aim of the Project**
 
 The project focuses on Udine and its municipalities. It is mainly aimed at students interested in studying and moving to the city.
-
-<br>
 
 ## **Structure**
 
@@ -30,13 +26,9 @@ The project is divided into three main parts:
 
 ![Preview](images/preview_of_sections.png)
 
-<br>
-
 ## **How to execute the code (Python)**
 
 The following is a list of methods by which you can install the necessary tools to run the Python code on your system.
-
-<br>
 
 ### **Solution 1: Anaconda environment**
 
@@ -66,8 +58,6 @@ The following is a list of methods by which you can install the necessary tools 
 
 - It is now possible to execute the code.
 
-<br>
-
 ### **Solution 2: install packages using pip**
 
 *Note*: this solution is **not** recommended, as it is highly likely that `pip` will not be able to install all packages correctly.
@@ -79,8 +69,6 @@ If you still want to try, in the `environment` folder you will find the file `re
 ```
 pip install -r requirements.txt
 ```
-
-<br>
 
 ### **Solution 3: install the packages manually**
 
@@ -99,13 +87,9 @@ If everything else has failed, you can try installing the packages individually,
 - [folium==0.12.1.post1](https://python-visualization.github.io/folium/installing.html)
 - [leafmap==0.7.0](https://leafmap.org/installation/)
 
-<br>
-
 ### **Online Notebooks**
 
 All the notebooks are freely explorable on this [webpage](https://danielepassabi.github.io/uni/geo/geo_project.html). The code is already executed and you do not need to download anything.
-
-<br>
 
 ## **How to execute the code (R)**
 
@@ -122,8 +106,6 @@ All packages can be installed with the following command:
 ```
 install.packages("package name", dependencies = TRUE)
 ```
-
-<br>
 
 ### **Online Notebook**
 
