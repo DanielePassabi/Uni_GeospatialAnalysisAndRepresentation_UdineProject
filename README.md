@@ -77,7 +77,7 @@ If everything else has failed, you can try installing the packages individually,
 - [pandas==1.3.5](https://pandas.pydata.org/getting_started.html)
 - [geopandas==0.10.2](https://geopandas.org/en/stable/getting_started/install.html)
 - [pygeos==0.12.0](https://pygeos.readthedocs.io/en/stable/installation.html)
-- [pyrosm==0.6.1](https://pyrosm.readthedocs.io/en/latest/installation.html) $\rightarrow$ it **must** be installed after `geopandas` in Windows
+- [pyrosm==0.6.1](https://pyrosm.readthedocs.io/en/latest/installation.html) --> it **must** be installed after `geopandas` in Windows
 - [matplotlib==3.5.1](https://matplotlib.org/stable/users/installing/index.html)
 - [geopy==2.2.0](https://geopy.readthedocs.io/en/stable/#installation)
 - [osmnx==1.1.2](https://osmnx.readthedocs.io/en/stable/)
