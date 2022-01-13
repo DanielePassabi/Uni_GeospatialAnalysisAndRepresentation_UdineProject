@@ -287,6 +287,7 @@ def create_folium_map_choropleth(lat,lon,list_of_layers,geodf,column):
 
     # create base map
     house_cost_map = folium.Map(location=[lat,lon], zoom_start = 9)
+    poly_group = folium.FeatureGroup(name="Municipalities: Popup and Tooltip")
 
     # add multiple layers
     print("> Adding multiple layers")
@@ -297,6 +298,7 @@ def create_folium_map_choropleth(lat,lon,list_of_layers,geodf,column):
     print("> Adding Choropleth")
     folium.Choropleth(
         geo_data=geodf.to_crs(epsg=4326).to_json(),
+        name="Municipalities: Choropleth",
         data = geodf,
         columns=['Municipality',column],
         key_on='feature.properties.Municipality',
@@ -336,7 +338,10 @@ def create_folium_map_choropleth(lat,lon,list_of_layers,geodf,column):
         folium.Popup(iframe, max_width=800).add_to(poly_geoj)
 
         # add municipality to map
-        poly_geoj.add_to(house_cost_map)
+        poly_geoj.add_to(poly_group)
+
+        # add poly_group to base map
+        poly_group.add_to(house_cost_map)
 
     # create layer control
     folium.LayerControl().add_to(house_cost_map)

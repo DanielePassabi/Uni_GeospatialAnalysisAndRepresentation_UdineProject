@@ -15,7 +15,6 @@ warnings.filterwarnings("ignore")
 
 
 def extract_info_from_dict(output_dict):
-
     """
     Input:
         > dictionary outputted from the function `plot_udine_map()`
@@ -25,7 +24,6 @@ def extract_info_from_dict(output_dict):
             - pos 0: df about universities
             - pos 1: df about other locations
     """
-
     list_of_places = []
     list_of_closest_name = []
     list_of_closest_dist = []
@@ -60,7 +58,9 @@ def extract_info_from_dict(output_dict):
         columns = ['Location', 'Closest (name)', 'Closest (distance)', 'Total in 1km Area']
         )
 
+    # return tuple with 2 res df
     return (uni_df, location_df)
+
 
 def extract_data_from_OSM(osm, primary_filter, secondary_filter="all"):
     """
@@ -142,7 +142,6 @@ def update_dict_with_closest_loc(dict_to_update, loc_geodf, graph, start_locatio
             dict_to_update["closest_distance"] = round(sum(edge_lengths),2)  
 
     return dict_to_update
-
 
 
 def plot_udine_map(udine_geodf, udine_osm, list_of_places, custom_address="", show_km_range = False, plot_uni_routes=False, list_of_uni="all", save=False, save_path=""):
@@ -430,13 +429,7 @@ def plot_udine_map(udine_geodf, udine_osm, list_of_places, custom_address="", sh
             list_of_uni_closest_points = []
 
             if list_of_uni == "all":
-                list_of_uni = [
-                    "Dipartimento di Scienze Giuridiche",
-                    "Università degli Studi di Udine - Facoltà di Medicina e Chirurgia - Corsi di Laurea Area Sanitaria",
-                    "Università degli Studi di Udine - Facoltà di Scienze della Formazione",
-                    "Università degli Studi di Udine - Dipartimento di Area medica",
-                    "Università degli Studi di Udine - Polo Scientifico dei Rizzi"
-                ]
+                list_of_uni = uni_names
 
             for idx,row in universities.iterrows():
                 uni_name = row["name"]                       
