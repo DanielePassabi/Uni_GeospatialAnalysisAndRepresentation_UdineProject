@@ -39,7 +39,7 @@ The project is divided into three main parts:
 
 ### **Solution 1: Anaconda environment**
 
-*Note: this solution has been tested on several machines and has always worked.*
+*Note: this solution has been tested on Windows and Linux operating systems.*
 
 - If you want to run the code on your own machine, it is **strongly recommended** to use the package manager `conda` of the [Anaconda](https://www.anaconda.com/) distribution.
 
