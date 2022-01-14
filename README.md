@@ -51,7 +51,7 @@ The project is divided into three main parts:
     conda env create --file environment.yaml
     ```
 
-    Note that you don't need to specify the env name, which is `GEO_PROJ` and is already contained within the `.yaml` file. It is not needed to specify the version of Python neither, as `Python 3.9.9` will be installed automatically.
+    Note that you don't need to specify the env name, which is `GEO_PROJ` and is already contained within the `.yaml` file. It is not needed to specify the version of Python either, as `Python 3.9.9` will be installed automatically.
 
 - You can now activate the environment with the command:
 
