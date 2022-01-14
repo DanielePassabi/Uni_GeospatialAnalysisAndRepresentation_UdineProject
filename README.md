@@ -1,26 +1,20 @@
 # **Exploring Udine and its Municipalities**
 
-<p align="center">
-    <br>
-    <img src="images/course.png" width=75px/>
-    <h2><b>Course</b></h2>
-</p>
+<br>
+<p align="center"><img src="images/course.png" width=75px/></p>
+<h2 align="center"><b>Course</b></h2>
+<h3 align="center"><i>Geospatial Analysis and Representation for Data Science (2021-2022)</i></h3>
 
-Geospatial Analysis and Representation for Data Science (2021-2022)
 
-<p align="center">
-    <br><br>
-    <img src="images/aim.png" width=75px/>
-    <h2><b>Aim of the Project</b></h2>
-</p>
+<br><br>
+<p align="center"><img src="images/aim.png" width=75px/></p>
+<h2 align="center"><b>Aim of the Project</b></h2>
 
 The project focuses on Udine and its municipalities. It is mainly aimed at students interested in studying and moving to the city.
 
-<p align="center">
-    <br><br>
-    <img src="images/structure.png" width=75px/>
-    <h2><b>Structure</b></h2>
-</p>
+<br><br>
+<p align="center"><img src="images/structure.png" width=75px/></p>
+<h2 align="center"><b>Structure</b></h2>
 
 The project is divided into three main parts:
 
@@ -38,12 +32,10 @@ The project is divided into three main parts:
 
 ![Preview](images/preview_of_sections.png)
 
-<p align="center">
-    <br><br>
-    <img src="images/python_logo.png" width=75px/>
-    <h2><b>How to execute the code (Python)</b></h2>
-    <p>The following is a list of methods by which you can install the necessary tools to run the Python code on your system.</p>
-</p>
+<br><br>
+<p align="center"><img src="images/python_logo.png" width=75px/></p>
+<h2 align="center"><b>How to execute the code (Python)</b></h2>
+<p align="center">The following is a list of methods by which you can install the necessary tools to run the Python code on your system.</p>
 
 ### **Solution 1: Anaconda environment**
 
@@ -110,11 +102,9 @@ It is recommended to create a new virtual environment, activate it and then foll
 
 All the notebooks are freely explorable on this [webpage](https://danielepassabi.github.io/uni/geo/geo_project.html). The code is already executed and you do not need to download anything.
 
-<p align="center">
-    <br><br>
-    <img src="images/R_logo.png" width=75px/>
-    <h2><b>How to execute the code (R)</b></h2>
-</p>
+<br><br>
+<p align="center"><img src="images/R_logo.png" width=75px/></p>
+<h2 align="center"><b>How to execute the code (R)</b></h2>
 
 The list of libraries needed to execute the R code follows:
 
