@@ -1,25 +1,26 @@
 # **Exploring Udine and its Municipalities**
 
-<center>
+<p align="center">
     <br>
     <img src="images/course.png" width=75px/>
     <h2><b>Course</b></h2>
-    <h2>Geospatial Analysis and Representation for Data Science (2021-2022)</h2>
-</center>
+</p>
 
-<center>
+Geospatial Analysis and Representation for Data Science (2021-2022)
+
+<p align="center">
     <br><br>
     <img src="images/aim.png" width=75px/>
     <h2><b>Aim of the Project</b></h2>
-</center>
+</p>
 
 The project focuses on Udine and its municipalities. It is mainly aimed at students interested in studying and moving to the city.
 
-<center>
+<p align="center">
     <br><br>
     <img src="images/structure.png" width=75px/>
     <h2><b>Structure</b></h2>
-</center>
+</p>
 
 The project is divided into three main parts:
 
@@ -37,12 +38,12 @@ The project is divided into three main parts:
 
 ![Preview](images/preview_of_sections.png)
 
-<center>
+<p align="center">
     <br><br>
     <img src="images/python_logo.png" width=75px/>
     <h2><b>How to execute the code (Python)</b></h2>
     <p>The following is a list of methods by which you can install the necessary tools to run the Python code on your system.</p>
-</center>
+</p>
 
 ### **Solution 1: Anaconda environment**
 
@@ -109,11 +110,11 @@ It is recommended to create a new virtual environment, activate it and then foll
 
 All the notebooks are freely explorable on this [webpage](https://danielepassabi.github.io/uni/geo/geo_project.html). The code is already executed and you do not need to download anything.
 
-<center>
+<p align="center">
     <br><br>
     <img src="images/R_logo.png" width=75px/>
     <h2><b>How to execute the code (R)</b></h2>
-</center>
+</p>
 
 The list of libraries needed to execute the R code follows:
 
