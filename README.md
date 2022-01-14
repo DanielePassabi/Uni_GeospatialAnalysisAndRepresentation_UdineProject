@@ -1,14 +1,25 @@
 # **Exploring Udine and its Municipalities**
 
-## **Course**
+<center>
+    <br>
+    <img src="images/course.png" width=75px/>
+    <h2><b>Course</b></h2>
+    <h2>Geospatial Analysis and Representation for Data Science (2021-2022)</h2>
+</center>
 
-Geospatial Analysis and Representation for Data Science (2021-2022)
-
-## **Aim of the Project**
+<center>
+    <br><br>
+    <img src="images/aim.png" width=75px/>
+    <h2><b>Aim of the Project</b></h2>
+</center>
 
 The project focuses on Udine and its municipalities. It is mainly aimed at students interested in studying and moving to the city.
 
-## **Structure**
+<center>
+    <br><br>
+    <img src="images/structure.png" width=75px/>
+    <h2><b>Structure</b></h2>
+</center>
 
 The project is divided into three main parts:
 
@@ -26,53 +37,60 @@ The project is divided into three main parts:
 
 ![Preview](images/preview_of_sections.png)
 
-## **How to execute the code (Python)**
-
-The following is a list of methods by which you can install the necessary tools to run the Python code on your system.
+<center>
+    <br><br>
+    <img src="images/python_logo.png" width=75px/>
+    <h2><b>How to execute the code (Python)</b></h2>
+    <p>The following is a list of methods by which you can install the necessary tools to run the Python code on your system.</p>
+</center>
 
 ### **Solution 1: Anaconda environment**
 
-- If you want to run the code on your own machine, it is strongly recommended to create an environment through [Anaconda](https://www.anaconda.com/) with `Python 3.9.9`.
+*Note: this solution has been tested on several machines and has always worked.*
+
+- If you want to run the code on your own machine, it is **strongly recommended** to use the package manager `conda` of the [Anaconda](https://www.anaconda.com/) distribution.
 
 - In the `environment` folder you will find the file `environment.yaml`, download it.
 
 - You can recreate the environment using the command:
 
-    ```
+    ```cmd
     conda env create --file environment.yaml
     ```
 
-    Note that you don't need to specify the name, which is `GEO_PROJ` and is already contained within the `.yaml` file.
+    Note that you don't need to specify the env name, which is `GEO_PROJ` and is already contained within the `.yaml` file. It is not needed to specify the version of Python neither, as `Python 3.9.9` will be installed automatically.
 
 - You can now activate the environment with the command:
 
-    ```
+    ```cmd
     conda activate GEO_PROJ
     ```
 
     This is usually recognised by the terminal, which will look like this:
 
-    ```
+    ```cmd
     (GEO_PROJ) ...
     ```
 
 - It is now possible to execute the code.
 
-### **Solution 2: install packages using pip**
+---
 
-*Note*: this solution is **not** recommended, as it is highly likely that `pip` will not be able to install all packages correctly.
+#### **Why not use `pip`?**
 
-Some packages, for example, must be installed before others on a Windows environment.
+Some packages are installed using the `conda` or `conda-forge` channel. Not all dependencies are available in `pip`, and this leads to errors.
 
-If you still want to try, in the `environment` folder you will find the file `requirements.txt`. You can install the packages with the command:
+However, a `requirements.txt` file has been created which shows the list of required packages.
 
-```
-pip install -r requirements.txt
-```
+It is **not recommended** to use the classic `pip install -r requirements.txt` command, as it will almost certainly lead to errors.
 
-### **Solution 3: install the packages manually**
+---
 
-If everything else has failed, you can try installing the packages individually, following the documentation:
+### **Solution 2: install the packages manually**
+
+If you don't want to use `conda` or can't use the `.yaml` file, you can try installing the main needed packages manually.
+
+It is recommended to create a new virtual environment, activate it and then follow the package documentation for installation.
 
 - [pandas==1.3.5](https://pandas.pydata.org/getting_started.html)
 - [geopandas==0.10.2](https://geopandas.org/en/stable/getting_started/install.html)
@@ -87,11 +105,15 @@ If everything else has failed, you can try installing the packages individually,
 - [folium==0.12.1.post1](https://python-visualization.github.io/folium/installing.html)
 - [leafmap==0.7.0](https://leafmap.org/installation/)
 
-### **Online Notebooks**
+### **Alternative Solution: Online Notebooks**
 
 All the notebooks are freely explorable on this [webpage](https://danielepassabi.github.io/uni/geo/geo_project.html). The code is already executed and you do not need to download anything.
 
-## **How to execute the code (R)**
+<center>
+    <br><br>
+    <img src="images/R_logo.png" width=75px/>
+    <h2><b>How to execute the code (R)</b></h2>
+</center>
 
 The list of libraries needed to execute the R code follows:
 
@@ -103,10 +125,10 @@ The list of libraries needed to execute the R code follows:
 
 All packages can be installed with the following command:
 
-```
+```r
 install.packages("package name", dependencies = TRUE)
 ```
 
-### **Online Notebook**
+### **Alternative Solution: Online Notebook**
 
 The notebook is freely explorable [here](https://danielepassabi.github.io/uni/geo/nb/3_Analysis_of_House_Sale_and_Rent_Cost_in_Province_of_Udine_R.html). The code is already executed and you do not need to download anything.
