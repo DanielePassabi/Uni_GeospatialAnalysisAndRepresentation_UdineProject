@@ -47,7 +47,6 @@ library(dplyr)    # data manipulation
 library(rgdal)    # import and store a shapefile in R
 library(spdep)    # analysis of spatial dependence
 library(ggplot2)  # create visualizations
-library(stringr)  # string manipulation
 
 print("> Libraries Imported")
 
@@ -528,6 +527,10 @@ plot_quantile_distr = function(shapefile, col_name){
 
 ```
 
+*Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
+
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
 ![](../images/quantiles_sale_rent.png)
 
 We now apply to the test `Sale` and `Rent` with the different spatial weights matrix that we have.
@@ -653,7 +656,7 @@ res_df
 
 Also in the case of the variable `Rent` the assumption of normality or randomization *does not* particularly affect the results.
 
-- With k-nearest neighbours the value of *I* goes from $0.795$, when $k = 1$, to $0.710$ with higher values of $k$ is higher ($4$).
+- With k-nearest neighbours the value of *I* goes from $0.795$, when $k = 1$, to $0.710$ with higher values of $k$ ($4$).
 - Using the critical cut-off neighbourhood the value of *I* falls to $0.51$ if we consider the minimum value for $d$. As $d$ increases, the value of *I* decreases, until it reaches $0.352$ when $d = 24$.
 - Finally, with the contiguity-based neighbourhood, the value of *I* is $0.71$.
 
@@ -680,18 +683,13 @@ Moran's scatterplot plots the variable of interest $x$ on the horizontal axis an
 The four quadrants of the scatterplot represent the four possible types of spatial association between each region (in our case common) and other neighbouring regions:
 
 - *Low-Low*: value of $x$ and $wx$ below the average
-- *High-Low*
-- *Low-High*
+- *High-Low*: a high value of $x$ and a low value of $wx$
+- *Low-High*: a low value of $x$ and a high value of $wx$
 - *High-High*: value of $x$ and $wx$ above the average
 
 Regions in the *High-High* and *Low-Low* quadrants have a **positive** spatial autocorrelation and are surrounded by regions with similar values.
 
-Regions in the *High-Low* and *Low-High* quadrants, on the contrary, identify local patterns of **negative** spatial autocorrelation. In these quadrants we find regions with:
-
-- a high value of $x$ and a low value of $wx$
-- a low value of $x$ and a high value of $wx$
-
-These regions are surrounded by other regions with dissimilar values.
+Regions in the *High-Low* and *Low-High* quadrants, on the contrary, identify local patterns of **negative** spatial autocorrelation. These regions are surrounded by other regions with dissimilar values.
 
 </div>
 
@@ -832,6 +830,8 @@ If, however, we increase the value of $k$ and consider more neighbouring municip
 
 ### **Moran Scatterplot for Rent**
 
+As we did for `Sale`, we generate a scatterplot for each of the 9 neighbourhood relationships used for `Rent` too.
+
 ```{r fig.align='center', fig.height=10, fig.width=10}
 
 #idx=1
@@ -966,7 +966,7 @@ Very frequent are the municipalities of *Codroipo*, *Camino al Tagliamento*, *Re
 <div class="definition">
 *Local Moran's I* is a local spatial autocorrelation statistic that identifies local clusters or local outliers to understand their contribution to the global clustering statistic.
 
-Source: [Aurin](https://aurin.org.au/resources/workbench-user-guides/portal-user-guides/analysing-your-data/spatial-autocorrelation-tools/local-morans-i/#:~:text=Local%20Moran's%20I%20is%20a,of%20Spatial%20Association%20(LISAs).)
+*Source: [Aurin](https://aurin.org.au/resources/workbench-user-guides/portal-user-guides/analysing-your-data/spatial-autocorrelation-tools/local-morans-i/#:~:text=Local%20Moran's%20I%20is%20a,of%20Spatial%20Association%20(LISAs).)*
 
 For each unit $i$ the local Moran's $I_{i}$ is defined as follows:
 $$
@@ -1023,9 +1023,21 @@ compute_and_plot_localmoran = function(shapefile, col_name, weight, title) {
 
 *Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
 
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
 ![](../images/local_moran_sale.png)
 
-TODO: comment results.
+Considering the results using the **KNN**, we can observe that:
+
+- The black and white map of the *local index values* of municipalities remains very similar as $k$ varies. There are a handful of municipalities which, however, are labelled differently depending on how many neighbours are considered (this happens with *Forni Avoltri*, for example).
+- There are in general few municipalities with a significant p-value, and they increase as the value of $k$ increases.
+
+Taking into consideration the results obtained with the **critical cut-off neighbourourood**:
+
+- It is immediately evident how significant the p-value of many of the most municipalities is, with even extremely low (and therefore significant) values.
+- The 4 maps of *local index values* are very similar, despite of the $d$ value.
+
+The **contiguity based neighborhood** gives results very similar to the cut-off with $d=12$, but with fewer significant municipalities.
 
 ```{r fig.height=14, fig.width=12, fig.align='center'}
 
@@ -1037,8 +1049,14 @@ TODO: comment results.
 
 *Note: the code is commented to preserve the readability of the output. The results are shown in the image below.*
 
+*It is recommended to open the visualisation in a new window to better appreciate it.*
+
 ![](../images/local_moran_rent.png)
 
-TODO: comment results.
+As was the case in `Salt`, also for the variable `Rent` with **KNN** there are, compared to the other results, fewer municipalities with a significant p-value.
+
+The situation improves with the **contiguity based neighborhood** and improves exponentially with the use of the **critical cut-off neighborhood**.
+
+Despite the different p-values for the municipalities, the maps of the local index values seem to be in agreement regardless of the neighborhood used.
 
 <br><br><br><br><br>

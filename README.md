@@ -112,7 +112,6 @@ The list of libraries needed to execute the R code follows:
 - `rgdal`
 - `spdep`
 - `ggplot2`
-- `stringr`
 
 All packages can be installed with the following command:
 
