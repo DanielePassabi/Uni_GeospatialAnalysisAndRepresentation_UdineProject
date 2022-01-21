@@ -28,13 +28,13 @@ The project is divided into three main parts:
 
     The map is designed for those who want to train and test themselves.
 
-    ![section_2](images/section_2.gif)
+    <img src="images/section_2.gif" width=100%/>
 
 3. *Geospatial analysis of average house prices and rents in the province of Udine*
 
     Interesting for those planning to move to Udine or its vicinity. It provides useful hints and considerations about the influence of each municipality on prices in neighbouring municipalities.
 
-    ![section_3](images/section_3.gif)
+    <img src="images/section_3.gif" width=100%/>
 
 <!-- ![Preview](images/preview_of_sections.png) -->
 
