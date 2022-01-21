@@ -22,15 +22,21 @@ The project is divided into three main parts:
 
     It provides the main information about the city.
 
+    ![section_1](images/section_1.png)
+
 2. *Interactive map of Udine with real walking and cycling routes*
 
     The map is designed for those who want to train and test themselves.
+
+    ![section_2](images/section_2.gif)
 
 3. *Geospatial analysis of average house prices and rents in the province of Udine*
 
     Interesting for those planning to move to Udine or its vicinity. It provides useful hints and considerations about the influence of each municipality on prices in neighbouring municipalities.
 
-![Preview](images/preview_of_sections.png)
+    ![section_3](images/section_3.gif)
+
+<!-- ![Preview](images/preview_of_sections.png) -->
 
 <br><br>
 <p align="center"><img src="images/python_logo.png" width=75px/></p>
