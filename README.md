@@ -10,7 +10,7 @@
 <p align="center"><img src="images/aim.png" width=75px/></p>
 <h2 align="center"><b>Aim of the Project</b></h2>
 
-The project focuses on Udine and its municipalities. It is mainly aimed at students interested in studying and moving to the city.
+The project initially focuses on Udine, and then examines the municipalities in the province. It is mainly addressed to students interested in studying and moving to the city. The aim is to provide students with useful tools and information for their future life in Udine, by means of various kinds of representations and a geospatial analysis of house prices and rents.
 
 <br><br>
 <p align="center"><img src="images/structure.png" width=75px/></p>
