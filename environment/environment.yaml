@@ -1,4 +1,4 @@
-name: GEO_PROJ_PYROSM_FIX
+name: GEO_PROJ
 channels:
   - conda-forge
   - defaults
