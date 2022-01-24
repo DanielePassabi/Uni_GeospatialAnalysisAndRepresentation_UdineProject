@@ -21,7 +21,7 @@ output:
 
 <br><div class="title">
 # **Analysis of House Sale and Rent Cost in Province of Udine**
-## **Project of Geospatial Analysis and Representation for Big Data**
+## **Project of Geospatial Analysis and Representation for Data Science**
 ### *Daniele Passabì, 221229*
 </div>
 
